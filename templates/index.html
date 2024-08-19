@@ -73,7 +73,6 @@
         <input type="text" name="publication_date" placeholder="Publication Date">
         <input type="text" name="publisher" placeholder="Publisher">
         <input type="number" name="no_of_copies_total" placeholder="Total Copies" required>
-        <input type="number" name="no_of_copies_current" placeholder="Current Copies" required>
         <button type="submit">Add Book</button>
     </form>
 
@@ -125,17 +124,6 @@
         <input type="text" name="query" placeholder="Search for books..." value="{{ request.args.get('query', '') }}">
         <button type="submit">Search</button>
     </form>
-
-    {% if books %}
-    <h2>Books</h2>
-    <ul>
-        {% for book in books %}
-            <li>{{ book.title }} by {{ book.authors }} (ISBN: {{ book.isbn }})</li>
-        {% else %}
-            <li>No books found</li>
-        {% endfor %}
-    </ul>
-    {% endif %}
 
     <h2>Loan a Book</h2>
 <form action="{{ url_for('loan_book') }}" method="POST">

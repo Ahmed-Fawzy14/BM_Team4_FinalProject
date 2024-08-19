@@ -27,14 +27,12 @@ class Books(db.Model):
     def loan_book(self):
         if self.no_of_copies_current > 0:
             self.no_of_copies_current -= 1
-            self.loaned_copies += 1
             return True
         return False
 
     def return_book(self):
-        if self.loaned_copies > 0:
+        if self.no_of_copies_total - self.no_of_copies_current > 0:
             self.no_of_copies_current += 1
-            self.loaned_copies -= 1
             return True
         return False
 
@@ -42,8 +40,7 @@ class Books(db.Model):
 def index():
     books = Books.query.all()
     available_books = [book for book in books if book.no_of_copies_current > 0]
-    loaned_books = [book for book in books if book.loaned_copies > 0]
-    return render_template('index.html', books=books, available_books=available_books, loaned_books=loaned_books)
+    return render_template('index.html', books=books, available_books=available_books)
 
 
 @app.route('/add', methods=['POST'])
@@ -61,7 +58,7 @@ def add_book():
     publication_date = request.form['publication_date']
     publisher = request.form['publisher']
     no_of_copies_total = request.form['no_of_copies_total']
-    no_of_copies_current = request.form['no_of_copies_current']
+    no_of_copies_current = no_of_copies_total
 
     #Check if BookID already exists
     existing_book = Books.query.filter_by(bookID=bookID).first()
@@ -139,9 +136,7 @@ def search():
     query = request.args.get('query')
     search_results = Books.query.filter(
         (Books.title.ilike(f'%{query}%')) |
-        (Books.authors.ilike(f'%{query}%')) |
-        (Books.isbn.ilike(f'%{query}%')) |
-        (Books.isbn13.ilike(f'%{query}%'))
+        (Books.bookID == query) 
     ).all()
     if not search_results:
         flash(f"No books found for search query: {query}", 'error')
