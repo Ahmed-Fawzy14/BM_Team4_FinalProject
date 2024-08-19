@@ -4,13 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Loan a Book</title>
-    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/static/css/styles.css">
 </head>
 <body>
 
     <!-- Navigation Bar -->
     <nav>
-        <a href="index">Home</a>
+        <a href="./">Home</a>
         <a href="books_list">Books List</a>
         <a href="add_book">Add a New Book</a>
         <a href="delete_book">Delete a Book</a>
@@ -18,10 +18,10 @@
         <a href="return_book">Return a Book</a>
     </nav>
 
-    <h1>Loan a Book</h1>
-    <form action="loan_book_processing.php" method="POST">
-        <input type="text" name="bookID" placeholder="Enter Book ID to Loan" required>
-        <button type="submit" class="loan-button">Loan Book</button>
+    <h1>Return a Book</h1>
+    <form action="{{ url_for('return_book')}}" method="POST">
+        <input type="text" name="bookID" placeholder="Enter Book ID to return" required>
+        <button type="submit" class="return-button">Return Book</button>
     </form>
 
 </body>

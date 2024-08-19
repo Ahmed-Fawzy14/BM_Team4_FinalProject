@@ -4,13 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Books List</title>
-    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/static/css/styles.css">
 </head>
 <body>
 
     <!-- Navigation Bar -->
     <nav>
-        <a href="index">Home</a>
+        <a href="./">Home</a>
         <a href="books_list">Books List</a>
         <a href="add_book">Add a New Book</a>
         <a href="delete_book">Delete a Book</a>
@@ -37,22 +37,24 @@
             <th>Current Copies</th>
         </tr>
         <!-- Example rows, replace with dynamic content if needed -->
+        {% for book in books %}
         <tr>
-            <td>1</td>
-            <td>Example Book</td>
-            <td>Author Name</td>
-            <td>4.5</td>
-            <td>1234567890</td>
-            <td>1234567890123</td>
-            <td>EN</td>
-            <td>320</td>
-            <td>150</td>
-            <td>20</td>
-            <td>2023-01-01</td>
-            <td>Example Publisher</td>
-            <td>5</td>
-            <td>2</td>
+            <td>{{ book.bookID }}</td>
+            <td>{{ book.title }}</td>
+            <td>{{ book.authors }}</td>
+            <td>{{ book.average_rating }}</td>
+            <td>{{ book.isbn }}</td>
+            <td>{{ book.isbn13 }}</td>
+            <td>{{ book.language_code }}</td>
+            <td>{{ book.num_pages }}</td>
+            <td>{{ book.ratings_count }}</td>
+            <td>{{ book.text_reviews_count }}</td>
+            <td>{{ book.publication_date }}</td>
+            <td>{{ book.publisher }}</td>
+            <td>{{ book.no_of_copies_total }}</td>
+            <td>{{ book.no_of_copies_current }}</td>
         </tr>
+        {% endfor %}
     </table>
 
 </body>

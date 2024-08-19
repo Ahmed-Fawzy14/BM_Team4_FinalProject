@@ -4,13 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add a New Book</title>
-    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/static/css/styles.css">
 </head>
 <body>
 
     <!-- Navigation Bar -->
     <nav>
-        <a href="index">Home</a>
+        <a href="./">Home</a>
         <a href="books_list">Books List</a>
         <a href="add_book">Add a New Book</a>
         <a href="delete_book">Delete a Book</a>
@@ -19,7 +19,7 @@
     </nav>
 
     <h1>Add a New Book</h1>
-    <form action="add_book_processing.php" method="POST">
+    <form action="{{ url_for('add_book')}}" method="POST">
         <input type="text" name="bookID" placeholder="Book ID" required>
         <input type="text" name="title" placeholder="Title" required>
         <input type="text" name="authors" placeholder="Authors">
