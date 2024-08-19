@@ -19,6 +19,14 @@
     </nav>
 
     <h1>Loan a Book</h1>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash-message {{ messages[0][0] }}">
+                {{ messages[0][1] }}
+            </div>
+        {% endif %}
+    {% endwith %}
+    
     <form action="{{ url_for('loan_book')}}" method="POST">
         <input type="text" name="bookID" placeholder="Enter Book ID to Loan" required>
         <button type="submit" class="loan-button">Loan Book</button>

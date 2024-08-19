@@ -19,6 +19,14 @@
     </nav>
 
     <h1>Return a Book</h1>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash-message {{ messages[0][0] }}">
+                {{ messages[0][1] }}
+            </div>
+        {% endif %}
+    {% endwith %}
+    
     <form action="{{ url_for('return_book')}}" method="POST">
         <input type="text" name="bookID" placeholder="Enter Book ID to return" required>
         <button type="submit" class="return-button">Return Book</button>

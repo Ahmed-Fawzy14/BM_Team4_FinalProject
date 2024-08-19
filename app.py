@@ -112,7 +112,7 @@ def add_book():
         db.session.add(new_book)
         db.session.commit()
         flash("Book added successfully!", 'success')
-        return redirect(url_for('books_list'))
+        #return redirect(url_for('books_list'))
     
     return render_template('add_book.html')
 
@@ -129,7 +129,7 @@ def delete_book():
         else:
             flash(f"Book with ID {bookID} does not exist.", 'error')
 
-        return redirect(url_for('books_list'))
+        #return redirect(url_for('books_list'))
     
     return render_template('delete_book.html')
 
@@ -145,7 +145,7 @@ def loan_book():
         else:
             flash("Loan failed. Book may not be available.", 'error')
 
-        return redirect(url_for('books_list'))
+       # return redirect(url_for('books_list'))
     
     return render_template('loan_book.html')
 
@@ -161,7 +161,7 @@ def return_book():
         else:
             flash("Return failed. No copies are currently loaned out.", 'error')
 
-        return redirect(url_for('books_list'))
+        #return redirect(url_for('books_list'))
     
     return render_template('return_book.html')
 
