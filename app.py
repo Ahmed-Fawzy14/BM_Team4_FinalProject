@@ -16,14 +16,14 @@ class Books(db.Model):
     isbn = db.Column(db.String(250))
     isbn13 = db.Column(db.String(250))
     language_code = db.Column(db.String(250))
-    num_pages = db.Column(db.String(250))
-    ratings_count = db.Column(db.String(250))
-    text_reviews_count = db.Column(db.String(250))
+    num_pages = db.Column(db.Integer)
+    ratings_count = db.Column(db.Integer)
+    text_reviews_count = db.Column(db.Integer)
     publication_date = db.Column(db.String(250))
     publisher = db.Column(db.String(250))
     no_of_copies_total = db.Column(db.Integer)
     no_of_copies_current = db.Column(db.Integer)
-    # borrowed_by = db.relationship('Members', backref='owner')
+
     def loan_book(self):
         if self.no_of_copies_current > 0:
             self.no_of_copies_current -= 1
@@ -38,98 +38,132 @@ class Books(db.Model):
 
 @app.route('/')
 def index():
+    return render_template('index.html')
+
+@app.route('/books_list')
+def books_list():
     books = Books.query.all()
-    available_books = [book for book in books if book.no_of_copies_current > 0]
-    return render_template('index.html', books=books, available_books=available_books)
+    return render_template('books_list.html', books=books)
 
-
-@app.route('/add', methods=['POST'])
+@app.route('/add_book', methods=['GET', 'POST'])
 def add_book():
-    bookID = request.form['bookID']
-    title = request.form['title']
-    authors = request.form['authors']
-    average_rating = request.form['average_rating']
-    isbn = request.form['isbn']
-    isbn13 = request.form['isbn13']
-    language_code = request.form['language_code']
-    num_pages = request.form['num_pages']
-    ratings_count = request.form['ratings_count']
-    text_reviews_count = request.form['text_reviews_count']
-    publication_date = request.form['publication_date']
-    publisher = request.form['publisher']
-    no_of_copies_total = request.form['no_of_copies_total']
-    no_of_copies_current = no_of_copies_total
+    if request.method == 'POST':
+        bookID = request.form['bookID']
+        title = request.form['title']
+        authors = request.form['authors']
+        average_rating = request.form['average_rating']
+        isbn = request.form['isbn']
+        isbn13 = request.form['isbn13']
+        language_code = request.form['language_code']
+        num_pages = request.form['num_pages']
+        ratings_count = request.form['ratings_count']
+        text_reviews_count = request.form['text_reviews_count']
+        publication_date = request.form['publication_date']
+        publisher = request.form['publisher']
+        no_of_copies_total = request.form['no_of_copies_total']
+        no_of_copies_current = no_of_copies_total
 
-    #Check if BookID already exists
-    existing_book = Books.query.filter_by(bookID=bookID).first()
-    if existing_book:
-        flash("Book ID already exists. Please use a unique Book ID.", 'error')
-        return redirect(url_for('index'))
+        existing_book = Books.query.filter_by(bookID=bookID).first()
+        if existing_book:
+            flash("Book ID already exists. Please use a unique Book ID.", 'error')
+            return redirect(url_for('add_book'))
 
+        try:
+            no_of_copies_total = int(no_of_copies_total)
+            no_of_copies_current = int(no_of_copies_current)
+            if no_of_copies_total < 0 or no_of_copies_current < 0:
+                raise ValueError("Number of copies cannot be negative.")
+        except ValueError as e:
+            flash(str(e), 'error')
+            return redirect(url_for('add_book'))
+        
+        try:
+            num_pages = int(num_pages)
+            if num_pages < 0:
+                raise ValueError("Number of pages cannot be negative.")
+        except ValueError as e:
+            flash(str(e), 'error')
+            return redirect(url_for('add_book'))
 
-    #Check number of copies is not negative
-    try:
-        no_of_copies_total = int(no_of_copies_total)
-        no_of_copies_current = int(no_of_copies_current)
-        if no_of_copies_total < 0 or no_of_copies_current < 0:
-            raise ValueError("Number of copies cannot be negative.")
-    except ValueError as e:
-        flash(str(e), 'error')
-        return redirect(url_for('index'))
-    
-    #Check number of pages is not negative
-    try:
-        num_pages = int(num_pages)
-        if num_pages < 0:
-            raise ValueError("Number of pages cannot be negative.")
-    except ValueError as e:
-        flash(str(e), 'error')
-        return redirect(url_for('index'))
+        try:
+            average_rating = float(average_rating)
+            if average_rating < 0 or average_rating > 5:
+                raise ValueError("Average rating should be between 0 and 5.")
+        except ValueError as e:
+            flash(str(e), 'error')
+            return redirect(url_for('add_book'))
 
-    #Check avergae rating is between 0 and 5
-    try:
-        average_rating = int(average_rating)
-        if average_rating < 0 or average_rating > 5:
-            raise ValueError("Avergae rating should be between 0 and 5.")
-    except ValueError as e:
-        flash(str(e), 'error')
-        return redirect(url_for('index'))
-
-
-    new_book = Books(
-        bookID=bookID,
-        title=title,
-        authors=authors,
-        average_rating=average_rating,
-        isbn=isbn,
-        isbn13=isbn13,
-        language_code=language_code,
-        num_pages=num_pages,
-        ratings_count=ratings_count,
-        text_reviews_count=text_reviews_count,
-        publication_date=publication_date,
-        publisher=publisher,
-        no_of_copies_total=no_of_copies_total,
-        no_of_copies_current=no_of_copies_current
-    )
-    db.session.add(new_book)
-    db.session.commit()
-    flash("Book added successfully!", 'success')
-    return redirect(url_for('index'))
-
-@app.route('/delete', methods=['POST'])
-def delete_book():
-    bookID = request.form['bookID']
-    book_to_delete = Books.query.filter_by(bookID=bookID).first()
-
-    if book_to_delete:
-        db.session.delete(book_to_delete)
+        new_book = Books(
+            bookID=bookID,
+            title=title,
+            authors=authors,
+            average_rating=average_rating,
+            isbn=isbn,
+            isbn13=isbn13,
+            language_code=language_code,
+            num_pages=num_pages,
+            ratings_count=ratings_count,
+            text_reviews_count=text_reviews_count,
+            publication_date=publication_date,
+            publisher=publisher,
+            no_of_copies_total=no_of_copies_total,
+            no_of_copies_current=no_of_copies_current
+        )
+        db.session.add(new_book)
         db.session.commit()
-        flash(f"Book with ID {bookID} has been deleted successfully.", 'success')
-    else:
-        flash(f"Book with ID {bookID} does not exist.", 'error')
+        flash("Book added successfully!", 'success')
+        return redirect(url_for('books_list'))
+    
+    return render_template('add_book.html')
 
-    return redirect(url_for('index'))
+@app.route('/delete_book', methods=['GET', 'POST'])
+def delete_book():
+    if request.method == 'POST':
+        bookID = request.form['bookID']
+        book_to_delete = Books.query.filter_by(bookID=bookID).first()
+
+        if book_to_delete:
+            db.session.delete(book_to_delete)
+            db.session.commit()
+            flash(f"Book with ID {bookID} has been deleted successfully.", 'success')
+        else:
+            flash(f"Book with ID {bookID} does not exist.", 'error')
+
+        return redirect(url_for('books_list'))
+    
+    return render_template('delete_book.html')
+
+@app.route('/loan_book', methods=['GET', 'POST'])
+def loan_book():
+    if request.method == 'POST':
+        bookID = request.form['bookID']
+        book = Books.query.filter_by(bookID=bookID).first()
+
+        if book and book.loan_book():
+            db.session.commit()
+            flash(f"Book {book.title} loaned out successfully.", 'success')
+        else:
+            flash("Loan failed. Book may not be available.", 'error')
+
+        return redirect(url_for('books_list'))
+    
+    return render_template('loan_book.html')
+
+@app.route('/return_book', methods=['GET', 'POST'])
+def return_book():
+    if request.method == 'POST':
+        bookID = request.form['bookID']
+        book = Books.query.filter_by(bookID=bookID).first()
+
+        if book and book.return_book():
+            db.session.commit()
+            flash(f"Book {book.title} returned successfully.", 'success')
+        else:
+            flash("Return failed. No copies are currently loaned out.", 'error')
+
+        return redirect(url_for('books_list'))
+    
+    return render_template('return_book.html')
 
 @app.route('/search', methods=['GET'])
 def search():
@@ -142,36 +176,9 @@ def search():
     ).all()
     if not search_results:
         flash(f"No books found for search query: {query}", 'error')
-    return render_template('index.html', books=search_results, query=query)
+    return render_template('books_list.html', books=search_results, query=query)
 
-@app.route('/loan', methods=['POST'])
-def loan_book():
-    bookID = request.form['bookID']
-    book = Books.query.filter_by(bookID=bookID).first()
-
-    if book and book.loan_book():
-        db.session.commit()
-        flash(f"Book {book.title} loaned out successfully.", 'success')
-    else:
-        flash("Loan failed. Book may not be available.", 'error')
-
-    return redirect(url_for('index'))
-
-@app.route('/return', methods=['POST'])
-def return_book():
-    bookID = request.form['bookID']
-    book = Books.query.filter_by(bookID=bookID).first()
-
-    if book and book.return_book():
-        db.session.commit()
-        flash(f"Book {book.title} returned successfully.", 'success')
-    else:
-        flash("Return failed. No copies are currently loaned out.", 'error')
-
-    return redirect(url_for('index'))
-
-
-if __name__ == '__main__':
+if __name__ == '_main_':
     with app.app_context():
         print("Creating the database tables...")
         db.create_all()

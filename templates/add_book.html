@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add a New Book</title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+
+    <!-- Navigation Bar -->
+    <nav>
+        <a href="index">Home</a>
+        <a href="books_list">Books List</a>
+        <a href="add_book">Add a New Book</a>
+        <a href="delete_book">Delete a Book</a>
+        <a href="loan_book">Loan a Book</a>
+        <a href="return_book">Return a Book</a>
+    </nav>
+
+    <h1>Add a New Book</h1>
+    <form action="add_book_processing.php" method="POST">
+        <input type="text" name="bookID" placeholder="Book ID" required>
+        <input type="text" name="title" placeholder="Title" required>
+        <input type="text" name="authors" placeholder="Authors">
+        <input type="text" name="average_rating" placeholder="Average Rating">
+        <input type="text" name="isbn" placeholder="ISBN">
+        <input type="text" name="isbn13" placeholder="ISBN13">
+        <input type="text" name="language_code" placeholder="Language Code">
+        <input type="text" name="num_pages" placeholder="Number of Pages">
+        <input type="text" name="ratings_count" placeholder="Ratings Count">
+        <input type="text" name="text_reviews_count" placeholder="Text Reviews Count">
+        <input type="text" name="publication_date" placeholder="Publication Date">
+        <input type="text" name="publisher" placeholder="Publisher">
+        <input type="number" name="no_of_copies_total" placeholder="Total Copies" required>
+        <button type="submit">Add Book</button>
+    </form>
+
+</body>
+</html>

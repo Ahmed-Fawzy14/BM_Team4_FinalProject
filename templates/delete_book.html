@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Library Management System - Home</title>
+    <title>Delete a Book</title>
     <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body>
@@ -18,8 +18,11 @@
         <a href="return_book">Return a Book</a>
     </nav>
 
-    <h1>Welcome to the Library Management System</h1>
-    <p>This system allows you to manage a library's collection of books, loans, and returns.</p>
+    <h1>Delete a Book</h1>
+    <form action="delete_book_processing.php" method="POST">
+        <input type="text" name="bookID" placeholder="Enter Book ID to Delete" required>
+        <button type="submit" class="delete-button">Delete Book</button>
+    </form>
 
 </body>
 </html>
