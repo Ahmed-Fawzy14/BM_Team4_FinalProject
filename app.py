@@ -136,7 +136,9 @@ def search():
     query = request.args.get('query')
     search_results = Books.query.filter(
         (Books.title.ilike(f'%{query}%')) |
-        (Books.bookID == query) 
+        (Books.bookID == query) |
+        (Books.authors.ilike(f'%{query}%')) |
+        (Books.isbn == query) 
     ).all()
     if not search_results:
         flash(f"No books found for search query: {query}", 'error')
