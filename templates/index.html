@@ -120,5 +120,20 @@
         </tr>
         {% endfor %}
     </table>
+
+    <form action="{{ url_for('search') }}" method="get">
+        <input type="text" name="query" placeholder="Search for books..." value="{{ request.args.get('query', '') }}">
+        <button type="submit">Search</button>
+    </form>
+
+    <h2>Books</h2>
+    <ul>
+        {% for book in books %}
+            <li>{{ book.title }} by {{ book.authors }} (ISBN: {{ book.isbn }})</li>
+        {% else %}
+            <li>No books found.</li>
+        {% endfor %}
+    </ul>
+
 </body>
 </html>

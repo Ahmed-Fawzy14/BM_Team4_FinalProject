@@ -118,7 +118,16 @@ def delete_book():
 
     return redirect(url_for('index'))
 
-
+@app.route('/search', methods=['GET'])
+def search():
+    query = request.args.get('query')
+    search_results = Books.query.filter(
+        (Books.title.ilike(f'%{query}%')) |
+        (Books.authors.ilike(f'%{query}%')) |
+        (Books.isbn.ilike(f'%{query}%')) |
+        (Books.isbn13.ilike(f'%{query}%'))
+    ).all()
+    return render_template('index.html', books=search_results, query=query)
 
 if __name__ == '__main__':
     with app.app_context():
