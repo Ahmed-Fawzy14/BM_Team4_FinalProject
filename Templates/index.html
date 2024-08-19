@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Library Management System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        form {
+            margin-bottom: 20px;
+        }
+        input[type="text"], input[type="number"], input[type="date"] {
+            margin: 5px 0;
+            padding: 8px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        button {
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        .delete-button {
+            background-color: #f44336;
+        }
+        .delete-button:hover {
+            background-color: #d32f2f;
+        }
+    </style>
+</head>
+<body>
+    <h1>Library Management System</h1>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <p style="color:{{ 'red' if category == 'error' else 'green' }}">{{ message }}</p>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <form action="{{ url_for('add_book') }}" method="POST">
+        <h2>Add a New Book</h2>
+        <input type="text" name="bookID" placeholder="Book ID" required>
+        <input type="text" name="title" placeholder="Title" required>
+        <input type="text" name="authors" placeholder="Authors">
+        <input type="text" name="average_rating" placeholder="Average Rating">
+        <input type="text" name="isbn" placeholder="ISBN">
+        <input type="text" name="isbn13" placeholder="ISBN13">
+        <input type="text" name="language_code" placeholder="Language Code">
+        <input type="text" name="num_pages" placeholder="Number of Pages">
+        <input type="text" name="ratings_count" placeholder="Ratings Count">
+        <input type="text" name="text_reviews_count" placeholder="Text Reviews Count">
+        <input type="text" name="publication_date" placeholder="Publication Date">
+        <input type="text" name="publisher" placeholder="Publisher">
+        <input type="number" name="no_of_copies_total" placeholder="Total Copies" required>
+        <input type="number" name="no_of_copies_current" placeholder="Current Copies" required>
+        <button type="submit">Add Book</button>
+    </form>
+
+    <form action="{{ url_for('delete_book') }}" method="POST">
+        <h2>Delete a Book</h2>
+        <input type="text" name="bookID" placeholder="Enter Book ID to Delete" required>
+        <button type="submit" class="delete-button">Delete Book</button>
+    </form>
+
+    <h2>Books List</h2>
+    <table>
+        <tr>
+            <th>Book ID</th>
+            <th>Title</th>
+            <th>Authors</th>
+            <th>Average Rating</th>
+            <th>ISBN</th>
+            <th>ISBN13</th>
+            <th>Language Code</th>
+            <th>Number of Pages</th>
+            <th>Ratings Count</th>
+            <th>Text Reviews Count</th>
+            <th>Publication Date</th>
+            <th>Publisher</th>
+            <th>Total Copies</th>
+            <th>Current Copies</th>
+        </tr>
+        {% for book in books %}
+        <tr>
+            <td>{{ book.bookID }}</td>
+            <td>{{ book.title }}</td>
+            <td>{{ book.authors }}</td>
+            <td>{{ book.average_rating }}</td>
+            <td>{{ book.isbn }}</td>
+            <td>{{ book.isbn13 }}</td>
+            <td>{{ book.language_code }}</td>
+            <td>{{ book.num_pages }}</td>
+            <td>{{ book.ratings_count }}</td>
+            <td>{{ book.text_reviews_count }}</td>
+            <td>{{ book.publication_date }}</td>
+            <td>{{ book.publisher }}</td>
+            <td>{{ book.no_of_copies_total }}</td>
+            <td>{{ book.no_of_copies_current }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>
