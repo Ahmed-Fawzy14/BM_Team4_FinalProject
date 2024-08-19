@@ -1,5 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
+from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
+from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///library.db'
@@ -7,6 +9,8 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'secret-key'
 
 db = SQLAlchemy(app)
+login_manager = LoginManager(app)
+login_manager.login_view = 'login'
 
 class Books(db.Model):
     bookID = db.Column(db.String(250), primary_key=True, nullable=False)
@@ -36,9 +40,65 @@ class Books(db.Model):
             return True
         return False
 
-@app.route('/')
-def index():
+class User(UserMixin, db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(150), unique=True, nullable=False)
+    password = db.Column(db.String(150), nullable=False)
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+        hashed_password = generate_password_hash(password)
+
+        new_user = User(username=username, password=hashed_password)
+        try:
+            db.session.add(new_user)
+            db.session.commit()
+            flash('Registration successful! Please log in.', 'success')
+            return redirect(url_for('login'))
+        except:
+            flash('Username already exists!', 'danger')
+            return redirect(url_for('register'))
+    return render_template('register.html')
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+        user = User.query.filter_by(username=username).first()
+
+        if user and check_password_hash(user.password, password):
+            login_user(user)
+            flash('Logged in successfully!', 'success')
+            return redirect(url_for('home'))
+        else:
+            flash('Login failed. Check your username and password.', 'danger')
+            return redirect(url_for('login'))
+    return render_template('login.html')
+
+@app.route('/home', methods=['GET', 'POST'])
+@login_required
+def home():
     return render_template('index.html')
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    flash('You have been logged out.', 'info')
+    return redirect(url_for('login'))
+
+@app.route('/')
+@login_required
+def index():
+    return redirect(url_for('login'))
 
 @app.route('/books_list')
 def books_list():
@@ -145,7 +205,7 @@ def loan_book():
         else:
             flash("Loan failed. Book may not be available.", 'error')
 
-       # return redirect(url_for('books_list'))
+        #return redirect(url_for('books_list'))
     
     return render_template('loan_book.html')
 
@@ -172,13 +232,13 @@ def search():
         (Books.title.ilike(f'%{query}%')) |
         (Books.bookID == query) |
         (Books.authors.ilike(f'%{query}%')) |
-        (Books.isbn == query) 
+        (Books.isbn == query)
     ).all()
     if not search_results:
         flash(f"No books found for search query: {query}", 'error')
     return render_template('books_list.html', books=search_results, query=query)
 
-if __name__ == '_main_':
+if __name__ == '__main__':
     with app.app_context():
         print("Creating the database tables...")
         db.create_all()
