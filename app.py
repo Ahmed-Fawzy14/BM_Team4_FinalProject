@@ -24,11 +24,27 @@ class Books(db.Model):
     no_of_copies_total = db.Column(db.Integer)
     no_of_copies_current = db.Column(db.Integer)
     # borrowed_by = db.relationship('Members', backref='owner')
+    def loan_book(self):
+        if self.no_of_copies_current > 0:
+            self.no_of_copies_current -= 1
+            self.loaned_copies += 1
+            return True
+        return False
+
+    def return_book(self):
+        if self.loaned_copies > 0:
+            self.no_of_copies_current += 1
+            self.loaned_copies -= 1
+            return True
+        return False
 
 @app.route('/')
 def index():
     books = Books.query.all()
-    return render_template('index.html', books=books)
+    available_books = [book for book in books if book.no_of_copies_current > 0]
+    loaned_books = [book for book in books if book.loaned_copies > 0]
+    return render_template('index.html', books=books, available_books=available_books, loaned_books=loaned_books)
+
 
 @app.route('/add', methods=['POST'])
 def add_book():
@@ -127,7 +143,36 @@ def search():
         (Books.isbn.ilike(f'%{query}%')) |
         (Books.isbn13.ilike(f'%{query}%'))
     ).all()
+    if not search_results:
+        flash(f"No books found for search query: {query}", 'error')
     return render_template('index.html', books=search_results, query=query)
+
+@app.route('/loan', methods=['POST'])
+def loan_book():
+    bookID = request.form['bookID']
+    book = Books.query.filter_by(bookID=bookID).first()
+
+    if book and book.loan_book():
+        db.session.commit()
+        flash(f"Book {book.title} loaned out successfully.", 'success')
+    else:
+        flash("Loan failed. Book may not be available.", 'error')
+
+    return redirect(url_for('index'))
+
+@app.route('/return', methods=['POST'])
+def return_book():
+    bookID = request.form['bookID']
+    book = Books.query.filter_by(bookID=bookID).first()
+
+    if book and book.return_book():
+        db.session.commit()
+        flash(f"Book {book.title} returned successfully.", 'success')
+    else:
+        flash("Return failed. No copies are currently loaned out.", 'error')
+
+    return redirect(url_for('index'))
+
 
 if __name__ == '__main__':
     with app.app_context():

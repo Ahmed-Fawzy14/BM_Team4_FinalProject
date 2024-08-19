@@ -126,14 +126,28 @@
         <button type="submit">Search</button>
     </form>
 
+    {% if books %}
     <h2>Books</h2>
     <ul>
         {% for book in books %}
             <li>{{ book.title }} by {{ book.authors }} (ISBN: {{ book.isbn }})</li>
         {% else %}
-            <li>No books found.</li>
+            <li>No books found</li>
         {% endfor %}
     </ul>
+    {% endif %}
+
+    <h2>Loan a Book</h2>
+<form action="{{ url_for('loan_book') }}" method="POST">
+    <input type="text" name="bookID" placeholder="Enter Book ID to Loan" required>
+    <button type="submit">Loan Book</button>
+</form>
+
+<h2>Return a Book</h2>
+<form action="{{ url_for('return_book') }}" method="POST">
+    <input type="text" name="bookID" placeholder="Enter Book ID to Return" required>
+    <button type="submit">Return Book</button>
+</form>
 
 </body>
 </html>
