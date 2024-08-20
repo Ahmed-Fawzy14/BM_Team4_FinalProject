@@ -5,21 +5,25 @@
     <link rel="stylesheet" href="/static/css/styles.css">
 </head>
 <body>
-    <h2>Register</h2>
 
     <!-- Flash Messages -->
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
-            <div>
-                {% for category, message in messages %}
-                    <div class="flash-message {{ category }}">{{ message }}</div>
-                {% endfor %}
-            </div>
+        <div>
+            {% for category, message in messages %}
+            
+            <div class="alert {{category}} ">
+               <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+               {{message}}
+             </div>
+            {% endfor %}
+        </div>
         {% endif %}
     {% endwith %}
 
 
-    <form method="POST">
+    <form class="small-form" method="POST">
+        <h1>Register</h1>
         <input type="text" name="username" placeholder="Username" required><br>
         <input type="password" name="password" placeholder="Password" required><br>
         <button type="submit">Register</button>
@@ -38,6 +42,21 @@
                 });
             }
         });
+    </script>
+
+    <script>
+        // Function to automatically hide all alerts after 30 seconds
+        function hideAlerts() {
+        var alerts = document.querySelectorAll('.alert');
+        alerts.forEach(function(alert) {
+            setTimeout(function() {
+            alert.style.display = 'none';
+            }, 5000); // 30 seconds
+        });
+        }
+    
+        // Call the function when the page loads
+        window.onload = hideAlerts;
     </script>
     
 </body>

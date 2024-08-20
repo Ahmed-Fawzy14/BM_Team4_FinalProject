@@ -6,7 +6,7 @@ html, body {
 
 body {
     font-family: Arial, sans-serif;
-    background-image: url('/static/images/books.jpeg'); /* Update with your image path */
+    background-image: url('/static/images/library.jpg'); /* Update with your image path */
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -36,14 +36,31 @@ nav a {
     transition: background-color 0.3s ease; /* Smooth transition */
 }
 
+nav .right-link {
+    float: right;
+    display: block;
+    color: white;
+    text-align: center;
+    padding: 14px 20px;
+    text-decoration: none;
+    font-size: 17px;
+    transition: background-color 0.3s ease; /* Smooth transition */
+}
+
+
 nav a:hover {
     background-color: #555;
     color: white;
 }
 
 /* Headings */
-h1, h2 {
+h2 {
     color: #fff; /* Ensure text is readable on the background */
+    text-align: center;
+}
+
+h1 {
+    color: #000;
     text-align: center;
 }
 
@@ -54,22 +71,32 @@ form {
     margin-bottom: 20px;
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    max-width: 600px; /* Set a max-width for better layout */
+    max-width: 90%; /* Set a max-width for better layout */
+    align-items: center;
+    display: flex;
+    flex-direction: column;
     margin-left: auto;
     margin-right: auto;
 }
 
+.small-form {
+    width: 50%;
+}
+
 form label {
     display: block;
-    margin: 10px 0 5px;
+    margin-left: 7%;
+    text-align: left;
+    align-self:flex-start;
     font-weight: bold;
 }
 
 /* Input Fields */
-input[type="text"], input[type="number"], input[type="date"] {
+input[type="text"], input[type="number"], input[type="date"], input[type="password"] {
     margin: 10px 0;
+    margin-bottom: 20px;
     padding: 12px;
-    width: calc(100% - 24px); /* Account for padding and borders */
+    width: calc(90% - 24px); /* Account for padding and borders */
     box-sizing: border-box;
     border: 1px solid #ccc;
     border-radius: 4px;
@@ -87,7 +114,7 @@ button {
     cursor: pointer;
     font-size: 16px;
     transition: background-color 0.3s ease;
-    width: 100%; /* Make button full-width in the form */
+    width: 10vw; /* Make button full-width in the form */
 }
 
 button:hover {
@@ -156,7 +183,7 @@ input[type="text"]:focus, input[type="number"]:focus, input[type="date"]:focus {
 /* Paragraphs */
 p {
     text-align: center;
-    font-size: 14px;
+    font-size: 18px;
     margin: 5px 0;
     color: #000;
 }
@@ -178,6 +205,38 @@ p {
 .flash-message.success {
     background-color: #4caf50; /* Green for success */
 }
+
+/* Alert Messages */
+.alert {
+    padding: 20px;
+    background-color: #f44336; /* Red */
+    color: white;
+    opacity: 0.9;
+    margin-bottom: 15px;
+    transition: opacity 0.6s; /* Add a fade effect */
+  }
+
+.alert.error {background-color: #f44336;}
+.alert.success {background-color: #04AA6D;}
+.alert.info {background-color: #2196F3;}
+.alert.warning {background-color: #ff9800;}
+  
+  /* The close button */
+  .closebtn {
+    margin-left: 15px;
+    color: white;
+    font-weight: bold;
+    float: right;
+    font-size: 22px;
+    line-height: 20px;
+    cursor: pointer;
+    transition: 0.3s;
+  }
+  
+  /* When moving the mouse over the close button */
+  .closebtn:hover {
+    color: black;
+  }
 
 /* Responsive Design */
 @media (max-width: 768px) {

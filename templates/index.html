@@ -13,7 +13,11 @@
      {% if messages %}
          <div>
              {% for category, message in messages %}
-                 <div class="flash-message {{ category }}">{{ message }}</div>
+             
+             <div class="alert {{category}} ">
+                <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+                {{message}}
+              </div>
              {% endfor %}
          </div>
      {% endif %}
@@ -21,19 +25,37 @@
 
     <!-- Navigation Bar -->
     <nav>
-        <a href="home">Home</a>
-        <a href="books_list">Books List</a>
-        {% if session['is_admin'] == 1 %}
-            <a href="add_book">Add a New Book</a>
-            <a href="delete_book">Delete a Book</a>
-        {% endif %}
-        <a href="loan_book">Loan a Book</a>
-        <a href="return_book">Return a Book</a>
+        <div class="left-links">
+            <a href="home">Home</a>
+            <a href="books_list">Books List</a>
+            {% if session['is_admin'] == 1 %}
+                <a href="add_book">Add a New Book</a>
+                <a href="delete_book">Delete a Book</a>
+            {% endif %}
+            <a href="loan_book">Loan a Book</a>
+            <a href="return_book">Return a Book</a>
+        </div>
+        <a href="logout" class="right-link">Logout</a>
     </nav>
+    
 
     <h1>Welcome to the Library Management System</h1>
     <p>This system allows you to manage a library's collection of books, loans, and returns.</p>
 
+    <script>
+        // Function to automatically hide all alerts after 30 seconds
+        function hideAlerts() {
+          var alerts = document.querySelectorAll('.alert');
+          alerts.forEach(function(alert) {
+            setTimeout(function() {
+              alert.style.display = 'none';
+            }, 5000); // 30 seconds
+          });
+        }
+      
+        // Call the function when the page loads
+        window.onload = hideAlerts;
+      </script>
     
 </body>
 </html>
