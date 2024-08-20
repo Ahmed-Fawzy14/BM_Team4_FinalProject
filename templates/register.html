@@ -25,6 +25,8 @@
     <form class="small-form" method="POST">
         <h1>Register</h1>
         <input type="text" name="username" placeholder="Username" required><br>
+        <input type="text" name="first-name" placeholder="Last Name" required><br>
+        <input type="text" name="last-name" placeholder="Last Name" required><br>
         <input type="password" name="password" placeholder="Password" required><br>
         <button type="submit">Register</button>
         <a href="{{ url_for('login') }}">Already have an account? Log in here.</a>
