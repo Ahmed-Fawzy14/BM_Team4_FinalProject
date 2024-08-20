@@ -8,15 +8,17 @@
 </head>
 <body>
 
-    <!-- Navigation Bar -->
-    <nav>
-        <a href="./">Home</a>
-        <a href="books_list">Books List</a>
+   <!-- Navigation Bar -->
+   <nav>
+    <a href="home">Home</a>
+    <a href="books_list">Books List</a>
+    {% if session['is_admin'] == 1 %}
         <a href="add_book">Add a New Book</a>
         <a href="delete_book">Delete a Book</a>
-        <a href="loan_book">Loan a Book</a>
-        <a href="return_book">Return a Book</a>
-    </nav>
+    {% endif %}
+    <a href="loan_book">Loan a Book</a>
+    <a href="return_book">Return a Book</a>
+</nav>
 
     <h1>Return a Book</h1>
     {% with messages = get_flashed_messages(with_categories=true) %}

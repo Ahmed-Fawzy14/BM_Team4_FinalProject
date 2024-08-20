@@ -1,16 +1,37 @@
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash, make_response, session
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
+from flask_migrate import Migrate
+
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///library.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'secret-key'
 
+
+
 db = SQLAlchemy(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
+
+migrate = Migrate(app, db)
+
+
+class User(UserMixin, db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(150), unique=True, nullable=False)
+    password_hash = db.Column(db.String(150), nullable=False)
+    is_admin = db.Column(db.Boolean, default=False)
+
+    def set_password(self, password):
+        self.password_hash = generate_password_hash(password)
+    
+    def check_password(self, password):
+        return check_password_hash(self.password_hash, password)
+
+
 
 class Books(db.Model):
     bookID = db.Column(db.String(250), primary_key=True, nullable=False)
@@ -40,11 +61,6 @@ class Books(db.Model):
             return True
         return False
 
-class User(UserMixin, db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(150), unique=True, nullable=False)
-    password = db.Column(db.String(150), nullable=False)
-
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
@@ -54,9 +70,10 @@ def register():
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
-        hashed_password = generate_password_hash(password)
 
-        new_user = User(username=username, password=hashed_password)
+        new_user = User(username=username)
+        new_user.set_password(password)  # This sets the password_hash attribute
+
         try:
             db.session.add(new_user)
             db.session.commit()
@@ -65,7 +82,14 @@ def register():
         except:
             flash('Username already exists!', 'danger')
             return redirect(url_for('register'))
-    return render_template('register.html')
+
+    # Render the register template with appropriate headers to prevent caching
+    response = make_response(render_template('register.html'))
+    response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0, max-age=0'
+    response.headers['Pragma'] = 'no-cache'
+    return response
+
+
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -74,14 +98,24 @@ def login():
         password = request.form.get('password')
         user = User.query.filter_by(username=username).first()
 
-        if user and check_password_hash(user.password, password):
+        if user and check_password_hash(user.password_hash, password):
             login_user(user)
+
+            session['is_admin'] = user.is_admin
+
+
             flash('Logged in successfully!', 'success')
             return redirect(url_for('home'))
         else:
             flash('Login failed. Check your username and password.', 'danger')
             return redirect(url_for('login'))
-    return render_template('login.html')
+
+    # Render the login template with appropriate headers to prevent caching
+    response = make_response(render_template('login.html'))
+    response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0, max-age=0'
+    response.headers['Pragma'] = 'no-cache'
+    return response
+
 
 @app.route('/home', methods=['GET', 'POST'])
 @login_required
@@ -91,6 +125,7 @@ def home():
 @app.route('/logout')
 @login_required
 def logout():
+    session.clear()
     logout_user()
     flash('You have been logged out.', 'info')
     return redirect(url_for('login'))
@@ -106,7 +141,12 @@ def books_list():
     return render_template('books_list.html', books=books)
 
 @app.route('/add_book', methods=['GET', 'POST'])
+@login_required
 def add_book():
+    if not current_user.is_admin:
+        flash('You do not have permission to access this page.', 'danger')
+        return redirect(url_for('home'))
+
     if request.method == 'POST':
         bookID = request.form['bookID']
         title = request.form['title']
@@ -176,8 +216,14 @@ def add_book():
     
     return render_template('add_book.html')
 
+
 @app.route('/delete_book', methods=['GET', 'POST'])
+@login_required
 def delete_book():
+    if not current_user.is_admin:
+        flash('You do not have permission to access this page.', 'danger')
+        return redirect(url_for('home'))
+
     if request.method == 'POST':
         bookID = request.form['bookID']
         book_to_delete = Books.query.filter_by(bookID=bookID).first()
@@ -192,6 +238,7 @@ def delete_book():
         #return redirect(url_for('books_list'))
     
     return render_template('delete_book.html')
+
 
 @app.route('/loan_book', methods=['GET', 'POST'])
 def loan_book():
@@ -225,6 +272,39 @@ def return_book():
     
     return render_template('return_book.html')
 
+def create_admin_user():
+    admin_username = "admin"
+    admin_password = "admin123"
+    
+    print("Checking for admin user...")  # Debugging statement
+    
+    try:
+        # Check if admin user already exists
+        admin_user = User.query.filter_by(username=admin_username).first()
+        print(f"Query executed. Result: {admin_user}")  # Debugging statement
+        
+        if admin_user is None:
+            print("Admin user not found, creating one...")  # Debugging statement
+            
+            # Create a new user instance with the admin credentials
+            admin_user = User(username=admin_username, is_admin=True)
+            print(f"Created user instance: {admin_user}")  # Debugging statement
+            
+            admin_user.set_password(admin_password)
+            print(f"Set password for admin user: {admin_user.password_hash}")  # Debugging statement
+            
+            # Add the admin user to the session and commit
+            db.session.add(admin_user)
+            db.session.commit()
+            print("Admin user created and committed to the database.")  # Debugging statement
+        else:
+            print("Admin user already exists.")  # Debugging statement
+
+    except Exception as e:
+        print(f"An error occurred: {e}")  # Debugging statement
+
+
+
 @app.route('/search', methods=['GET'])
 def search():
     query = request.args.get('query')
@@ -240,7 +320,6 @@ def search():
 
 if __name__ == '__main__':
     with app.app_context():
-        print("Creating the database tables...")
         db.create_all()
-        print("Database tables created.")
+        create_admin_user()
     app.run(debug=True)
