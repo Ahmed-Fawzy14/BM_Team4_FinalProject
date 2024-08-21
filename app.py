@@ -136,6 +136,7 @@ def index():
     return redirect(url_for('login'))
 
 @app.route('/books_list')
+@login_required
 def books_list():
     books = Books.query.all()
     return render_template('books_list.html', books=books)
@@ -241,6 +242,7 @@ def delete_book():
 
 
 @app.route('/loan_book', methods=['GET', 'POST'])
+@login_required
 def loan_book():
     if request.method == 'POST':
         bookID = request.form['bookID']
@@ -257,6 +259,7 @@ def loan_book():
     return render_template('loan_book.html')
 
 @app.route('/return_book', methods=['GET', 'POST'])
+@login_required
 def return_book():
     if request.method == 'POST':
         bookID = request.form['bookID']
@@ -272,9 +275,7 @@ def return_book():
     
     return render_template('return_book.html')
 
-def create_admin_user():
-    admin_username = "admin"
-    admin_password = "admin123"
+def create_admin_user(admin_username, admin_password):
     
     print("Checking for admin user...")  # Debugging statement
     
@@ -306,6 +307,7 @@ def create_admin_user():
 
 
 @app.route('/search', methods=['GET'])
+@login_required
 def search():
     query = request.args.get('query')
     search_results = Books.query.filter(
@@ -321,5 +323,5 @@ def search():
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
-        create_admin_user()
+        create_admin_user('admin', 'admin123')
     app.run(debug=True)
